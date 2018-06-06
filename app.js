@@ -35,6 +35,8 @@ var appRoutes = require('./routes/app');
 app.use('/', appRoutes);
 var usuarioRoutes = require('./routes/usuario');
 app.use('/usuario', usuarioRoutes);
+var loginRoutes = require('./routes/login');
+app.use('/login', loginRoutes);
 
 // Escuchar peticiones
 app.listen( puertoExpress, () => {

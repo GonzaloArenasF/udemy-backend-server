@@ -6,8 +6,11 @@
 var express = require('express');
 var logger  = require('winston');
 var bcrypt  = require('bcryptjs');
+var jwt     = require('jsonwebtoken');
 
-var app = express();
+var app  = express();
+
+var mdAut = require('../middlewares/autenticacion');
 
 var Usuario = require('../models/usuario');
 
@@ -41,7 +44,7 @@ app.get( '/', (req, res, next) => {
 /**
  * POST: Insertar usuarios
  */
-app.post( '/', (req, res) => {
+app.post( '/', mdAut.verificarToken, (req, res) => {
 
   var body = req.body;
 
@@ -66,7 +69,8 @@ app.post( '/', (req, res) => {
 
     res.status(201).json({
       ok: true,
-      usuario: usuarioGuardado
+      usuario: usuarioGuardado,
+      usuarioLogueado: req.usuario
     });
     
   });
@@ -76,7 +80,7 @@ app.post( '/', (req, res) => {
 /**
  * PUT : Actualizar usuarios
  */
-app.put( '/:id', (req, res) => {
+app.put( '/:id', mdAut.verificarToken, (req, res) => {
 
   var id    = req.params.id;
   var body  = req.body;
@@ -94,7 +98,7 @@ app.put( '/:id', (req, res) => {
 
     if ( !usuario ) {
       logger.error('El usuario no existe ', err);
-      return res.status(5400).json({ // Bad Request
+      return res.status(400).json({ // Bad Request
         ok: false,
         mensaje: 'El usuario no existe',
         errors: err
@@ -120,9 +124,48 @@ app.put( '/:id', (req, res) => {
 
       res.status(200).json({
         ok: true,
-        usuario: usuarioGuardado
+        usuario: usuarioGuardado,
+        usuarioLogueado: req.usuario
       });
 
+    });
+
+  });
+
+});
+
+
+/**
+ * DELETE : Borrar usuarios
+ */
+app.delete('/:id', mdAut.verificarToken, (req, res) => {
+
+  var id = req.params.id;
+
+  Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
+
+    if (err) {
+      logger.error('Error al borrar usuario ', err);
+      return res.status(500).json({ // Internal Server Error
+        ok: false,
+        mensaje: 'Error al borrar usuario',
+        errors: err
+      });
+    }
+
+    if (!usuarioBorrado) {
+      logger.error('No existe el usuario ', err);
+      return res.status(400).json({ // Bad Request
+        ok: false,
+        mensaje: 'No existe el usuario',
+        errors: err
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      usuario: usuarioBorrado,
+      usuarioLogueado: req.usuario
     });
 
   });
