@@ -37,7 +37,7 @@ app.post('/', (req, res) => {
       });
     }
 
-    usuarioBD.password = 'xD';
+    usuarioBD.password = 'xD'; // Omitimos el despliegue de la passsword
 
     // Token
     let token = jwt.sign({

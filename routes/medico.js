@@ -1,5 +1,5 @@
 /**
- * Definición de rutas de usuarios
+ * Definición de rutas de CRUD de medicos
  * @author Gonzalo A. Arenas Flores <gonzalo.arenas.flores@gmail.com>
  */
 
@@ -12,29 +12,29 @@ var app  = express();
 
 var mdAut = require('../middlewares/autenticacion');
 
-var Usuario = require('../models/usuario');
+var Medico = require('../models/medico');
 
 /**
- * GET : Listar todos los usuarios
+ * GET : Listar todos los hospitales
  */
 app.get( '/', (req, res, next) => {
 
-  Usuario.find({}, 'nombre email img role')
+  Medico.find({}, 'nombre img usuario hospital')
     .exec(
-      (err, usuarios) => {
+      (err, medicos) => {
 
       if (err) {
-        logger.error('Error al rescatar usuarios: ', err);
+        logger.error('Error al rescatar médico: ', err);
         return res.status(500).json({ // Internal Server Error
           ok: false,
-          mensaje: 'Error al rescatar usuarios',
+          mensaje: 'Error al rescatar médico',
           errors: err
         });
       }
 
       res.status(200).json({
         ok: true,
-        usuarios: usuarios
+        medicos: medicos
       });
 
   });
@@ -42,35 +42,34 @@ app.get( '/', (req, res, next) => {
 });
 
 /**
- * POST: Insertar usuarios
+ * POST: Insertar medico
  */
 app.post( '/', mdAut.verificarToken, (req, res) => {
 
   var body = req.body;
 
-  var usuario = new Usuario({
+  var medico = new Medico({
     nombre    : body.nombre,
-    email     : body.email,
-    password  : bcrypt.hashSync(body.password, 10),
     img       : body.img,
-    role      : body.role,
+    usuario   : req.usuario._id,
+    hospital  : body.hospital
   });
 
-  usuario.save( (err, usuarioGuardado) => {
+  medico.save( (err, medicoGuardado) => {
 
     if (err) {
-      logger.error('Error al crear usuarios ', err);
+      logger.error('Error al crear medico ', err);
       return res.status(400).json({ // Bad Request
         ok: false,
-        mensaje: 'Error al crear usuario',
+        mensaje: 'Error al crear medico',
         errors: err
       });
     }
 
     res.status(201).json({
       ok: true,
-      usuario: usuarioGuardado,
-      usuarioLogueado: req.usuario
+      medico: medicoGuardado,
+      usuarioLogueado: req.usuario // Indica el usuario que realizó la operación
     });
     
   });
@@ -78,53 +77,52 @@ app.post( '/', mdAut.verificarToken, (req, res) => {
 });
 
 /**
- * PUT : Actualizar usuarios
+ * PUT : Actualizar medico
  */
 app.put( '/:id', mdAut.verificarToken, (req, res) => {
 
   var id    = req.params.id;
   var body  = req.body;
 
-  Usuario.findById( id, (err, usuario) => {
+  Medico.findById( id, (err, medico) => {
 
     if (err) {
-      logger.error('Error al buscar usuario ', err);
+      logger.error('Error al buscar medico ', err);
       return res.status(500).json({ // Internal Server Error
         ok: false,
-        mensaje: 'Error al buscar usuario',
+        mensaje: 'Error al buscar medico',
         errors: err
       });
     }
 
-    if ( !usuario ) {
-      logger.error('El usuario no existe ', err);
+    if ( !medico ) {
+      logger.error('El medico no existe ', err);
       return res.status(400).json({ // Bad Request
         ok: false,
-        mensaje: 'El usuario no existe',
+        mensaje: 'El medico no existe',
         errors: err
       });
     }
 
-    usuario.nombre = body.nombre;
-    usuario.email = body.email;
-    usuario.role = body.role;
+    medico.nombre   = body.nombre;
+    medico.img      = body.img;
+    medico.usuario  = req.usuario._id;
+    medico.hospital = body.hospital;
 
-    usuario.save( (err, usuarioGuardado) => {
+    medico.save( (err, medicoGuardado) => {
 
       if (err) {
-        logger.error('Error al actualizar usuario ', err);
+        logger.error('Error al actualizar medico ', err);
         return res.status(400).json({ // Bad Request
           ok: false,
-          mensaje: 'Error al actualizar usuario',
+          mensaje: 'Error al actualizar medico',
           errors: err
         });
       }
 
-      usuario.password = 'xD'; // Omitimos el despliegue de la passsword
-
       res.status(200).json({
         ok: true,
-        usuario: usuarioGuardado,
+        medico: medicoGuardado,
         usuarioLogueado: req.usuario
       });
 
@@ -136,35 +134,35 @@ app.put( '/:id', mdAut.verificarToken, (req, res) => {
 
 
 /**
- * DELETE : Borrar usuarios
+ * DELETE : Borrar medico
  */
 app.delete('/:id', mdAut.verificarToken, (req, res) => {
 
   var id = req.params.id;
 
-  Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
+  Medico.findByIdAndRemove(id, (err, medicoBorrado) => {
 
     if (err) {
-      logger.error('Error al borrar usuario ', err);
+      logger.error('Error al borrar medico ', err);
       return res.status(500).json({ // Internal Server Error
         ok: false,
-        mensaje: 'Error al borrar usuario',
+        mensaje: 'Error al borrar medico',
         errors: err
       });
     }
 
-    if (!usuarioBorrado) {
-      logger.error('No existe el usuario ', err);
+    if (!medicoBorrado) {
+      logger.error('No existe el medico ', err);
       return res.status(400).json({ // Bad Request
         ok: false,
-        mensaje: 'No existe el usuario',
+        mensaje: 'No existe el medico',
         errors: err
       });
     }
 
     res.status(200).json({
       ok: true,
-      usuario: usuarioBorrado,
+      medico: medicoBorrado,
       usuarioLogueado: req.usuario
     });
 

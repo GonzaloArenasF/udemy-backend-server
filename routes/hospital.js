@@ -1,5 +1,5 @@
 /**
- * Definición de rutas de usuarios
+ * Definición de rutas de CRUD de hospitales
  * @author Gonzalo A. Arenas Flores <gonzalo.arenas.flores@gmail.com>
  */
 
@@ -12,29 +12,29 @@ var app  = express();
 
 var mdAut = require('../middlewares/autenticacion');
 
-var Usuario = require('../models/usuario');
+var Hospital = require('../models/hospital');
 
 /**
- * GET : Listar todos los usuarios
+ * GET : Listar todos los hospitales
  */
 app.get( '/', (req, res, next) => {
 
-  Usuario.find({}, 'nombre email img role')
+  Hospital.find({}, 'nombre img usuario')
     .exec(
-      (err, usuarios) => {
+      (err, hospitales) => {
 
       if (err) {
-        logger.error('Error al rescatar usuarios: ', err);
+        logger.error('Error al rescatar hospital: ', err);
         return res.status(500).json({ // Internal Server Error
           ok: false,
-          mensaje: 'Error al rescatar usuarios',
+          mensaje: 'Error al rescatar hospital',
           errors: err
         });
       }
 
       res.status(200).json({
         ok: true,
-        usuarios: usuarios
+        hospitales: hospitales
       });
 
   });
@@ -42,35 +42,33 @@ app.get( '/', (req, res, next) => {
 });
 
 /**
- * POST: Insertar usuarios
+ * POST: Insertar hospitales
  */
 app.post( '/', mdAut.verificarToken, (req, res) => {
 
   var body = req.body;
 
-  var usuario = new Usuario({
+  var hospital = new Hospital({
     nombre    : body.nombre,
-    email     : body.email,
-    password  : bcrypt.hashSync(body.password, 10),
     img       : body.img,
-    role      : body.role,
+    usuario   : req.usuario._id
   });
 
-  usuario.save( (err, usuarioGuardado) => {
+  hospital.save( (err, hospitalGuardado) => {
 
     if (err) {
-      logger.error('Error al crear usuarios ', err);
+      logger.error('Error al crear hospital ', err);
       return res.status(400).json({ // Bad Request
         ok: false,
-        mensaje: 'Error al crear usuario',
+        mensaje: 'Error al crear hospital',
         errors: err
       });
     }
 
     res.status(201).json({
       ok: true,
-      usuario: usuarioGuardado,
-      usuarioLogueado: req.usuario
+      hospital: hospitalGuardado,
+      usuarioLogueado: req.usuario // Indica el usuario que realizó la operación
     });
     
   });
@@ -78,53 +76,51 @@ app.post( '/', mdAut.verificarToken, (req, res) => {
 });
 
 /**
- * PUT : Actualizar usuarios
+ * PUT : Actualizar hospitales
  */
 app.put( '/:id', mdAut.verificarToken, (req, res) => {
 
   var id    = req.params.id;
   var body  = req.body;
 
-  Usuario.findById( id, (err, usuario) => {
+  Hospital.findById( id, (err, hospital) => {
 
     if (err) {
-      logger.error('Error al buscar usuario ', err);
+      logger.error('Error al buscar hospital ', err);
       return res.status(500).json({ // Internal Server Error
         ok: false,
-        mensaje: 'Error al buscar usuario',
+        mensaje: 'Error al buscar hospital',
         errors: err
       });
     }
 
-    if ( !usuario ) {
-      logger.error('El usuario no existe ', err);
+    if ( !hospital ) {
+      logger.error('El hospital no existe ', err);
       return res.status(400).json({ // Bad Request
         ok: false,
-        mensaje: 'El usuario no existe',
+        mensaje: 'El hospital no existe',
         errors: err
       });
     }
 
-    usuario.nombre = body.nombre;
-    usuario.email = body.email;
-    usuario.role = body.role;
+    hospital.nombre   = body.nombre;
+    hospital.img      = body.img;
+    hospital.usuario  = req.usuario._id;
 
-    usuario.save( (err, usuarioGuardado) => {
+    hospital.save( (err, hospitalGuardado) => {
 
       if (err) {
-        logger.error('Error al actualizar usuario ', err);
+        logger.error('Error al actualizar hospital ', err);
         return res.status(400).json({ // Bad Request
           ok: false,
-          mensaje: 'Error al actualizar usuario',
+          mensaje: 'Error al actualizar hospital',
           errors: err
         });
       }
 
-      usuario.password = 'xD'; // Omitimos el despliegue de la passsword
-
       res.status(200).json({
         ok: true,
-        usuario: usuarioGuardado,
+        hospital: hospitalGuardado,
         usuarioLogueado: req.usuario
       });
 
@@ -136,35 +132,35 @@ app.put( '/:id', mdAut.verificarToken, (req, res) => {
 
 
 /**
- * DELETE : Borrar usuarios
+ * DELETE : Borrar hospital
  */
 app.delete('/:id', mdAut.verificarToken, (req, res) => {
 
   var id = req.params.id;
 
-  Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
+  Hospital.findByIdAndRemove(id, (err, hospitalBorrado) => {
 
     if (err) {
-      logger.error('Error al borrar usuario ', err);
+      logger.error('Error al borrar hospital ', err);
       return res.status(500).json({ // Internal Server Error
         ok: false,
-        mensaje: 'Error al borrar usuario',
+        mensaje: 'Error al borrar hospital',
         errors: err
       });
     }
 
-    if (!usuarioBorrado) {
-      logger.error('No existe el usuario ', err);
+    if (!hospitalBorrado) {
+      logger.error('No existe el hospital ', err);
       return res.status(400).json({ // Bad Request
         ok: false,
-        mensaje: 'No existe el usuario',
+        mensaje: 'No existe el hospital',
         errors: err
       });
     }
 
     res.status(200).json({
       ok: true,
-      usuario: usuarioBorrado,
+      hospital: hospitalBorrado,
       usuarioLogueado: req.usuario
     });
 

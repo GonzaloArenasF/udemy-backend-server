@@ -31,12 +31,11 @@ app.use(bodyParser.urlencoded({ extended: false }));  // parse application/x-www
 app.use(bodyParser.json());                           // parse application/json
 
 // Rutas
-var appRoutes = require('./routes/app');
-app.use('/', appRoutes);
-var usuarioRoutes = require('./routes/usuario');
-app.use('/usuario', usuarioRoutes);
-var loginRoutes = require('./routes/login');
-app.use('/login', loginRoutes);
+app.use('/', require('./routes/app'));
+app.use('/hospital', require('./routes/hospital'));
+app.use('/login', require('./routes/login'));
+app.use('/medico', require('./routes/medico'));
+app.use('/usuario', require('./routes/usuario'));
 
 // Escuchar peticiones
 app.listen( puertoExpress, () => {
