@@ -16,9 +16,10 @@ var Hospital = require('../models/hospital');
 var Medico = require('../models/medico');
 var Usuario = require('../models/usuario');
 
-// default options
+/**
+ * Uploads de imágenes
+ */
 app.use(fileUpload());
-
 app.put( '/:coleccion/:id', mdAut.verificarToken, (req, res, next) => {
 
   var coleccion = req.params.coleccion;

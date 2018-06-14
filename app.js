@@ -32,6 +32,7 @@ app.use(bodyParser.json());                           // parse application/json
 
 // Rutas
 app.use('/busqueda', require('./routes/busqueda'));
+app.use('/download', require('./routes/download'));
 app.use('/hospital', require('./routes/hospital'));
 app.use('/login', require('./routes/login'));
 app.use('/medico', require('./routes/medico'));
