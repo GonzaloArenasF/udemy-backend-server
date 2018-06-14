@@ -19,7 +19,12 @@ var Usuario = require('../models/usuario');
  */
 app.get( '/', (req, res, next) => {
 
+  var inicio  = (req.query.inicio) ? Number(req.query.inicio) : 0;
+  var cuantos = (req.query.cuantos) ? Number(req.query.cuantos) : 10;
+
   Usuario.find({}, 'nombre email img role')
+    .skip(inicio)
+    .limit(cuantos)
     .exec(
       (err, usuarios) => {
 
@@ -32,10 +37,26 @@ app.get( '/', (req, res, next) => {
         });
       }
 
-      res.status(200).json({
-        ok: true,
-        usuarios: usuarios
+      Usuario.count( {}, (err, cantidad) => {
+
+        if (err) {
+          logger.error('Error al rescatar la cantidad de usuarios: ', err);
+          return res.status(500).json({ // Internal Server Error
+            ok: false,
+            mensaje: 'Error al rescatar la cantidad de usuarios',
+            errors: err
+          });
+        }
+
+        res.status(200).json({
+          ok        : true,
+          total     : cantidad,
+          usuarios  : usuarios
+        });
+        
       });
+
+      
 
   });
 

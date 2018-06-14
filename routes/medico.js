@@ -19,9 +19,14 @@ var Medico = require('../models/medico');
  */
 app.get( '/', (req, res, next) => {
 
+  var inicio  = (req.query.inicio) ? Number(req.query.inicio) : 0;
+  var cuantos = (req.query.cuantos) ? Number(req.query.cuantos) : 10;
+
   Medico.find({})
     .populate('usuario', 'nombre email')
     .populate('hospital', 'nombre')
+    .skip(inicio)
+    .limit(cuantos)
     .exec(
       (err, medicos) => {
 
@@ -34,9 +39,23 @@ app.get( '/', (req, res, next) => {
         });
       }
 
-      res.status(200).json({
-        ok: true,
-        medicos: medicos
+      Medico.count( {}, (err, cantidad) => {
+
+        if (err) {
+          logger.error('Error al rescatar la cantidad de médicos: ', err);
+          return res.status(500).json({ // Internal Server Error
+            ok: false,
+            mensaje: 'Error al rescatar la cantidad de médicos',
+            errors: err
+          });
+        }
+
+        res.status(200).json({
+          ok      : true,
+          total   : cantidad,
+          medicos : medicos
+        });
+
       });
 
   });
