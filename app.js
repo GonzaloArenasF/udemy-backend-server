@@ -20,7 +20,7 @@ mongoose.connection.openUri('mongodb://localhost:' + puertoMongoDB + '/hospitalD
     logger.info('MongoDB con problemas: ', err);
     throw err
   } else {
-    logger.info('MongoDB corriendo en puerto ' + puertoExpress + ': online');
+    logger.info('MongoDB corriendo en puerto ' + puertoMongoDB + ': online');
   }
 });
 

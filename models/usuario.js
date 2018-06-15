@@ -15,11 +15,12 @@ var rolesValidos = {
 };
 
 var usuarioSchema = new Schema({
-  nombre : { type: String, required: [true, 'El nombre es obligatorio'] },
-  email : { type: String, unique: true, required: [true, 'El email es obligatorio'] },
-  password : { type: String, required: [true, 'La password es obligatorio'] },
-  img : { type: String },
-  role : { type: String, required: true, default: 'USER', enum: rolesValidos }
+  nombre        : { type: String, required: [true, 'El nombre es obligatorio'] },
+  email         : { type: String, unique: true, required: [true, 'El email es obligatorio'] },
+  password      : { type: String, required: [true, 'La password es obligatorio'] },
+  img           : { type: String },
+  role          : { type: String, required: true, default: 'USER', enum: rolesValidos },
+  googleSignIn  : { type: Boolean, default: false }
 });
 
 // Mensajes para validar unicidad
