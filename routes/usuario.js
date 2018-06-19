@@ -65,7 +65,7 @@ app.get( '/', (req, res, next) => {
 /**
  * POST: Insertar usuarios
  */
-app.post( '/', mdAut.verificarToken, (req, res) => {
+app.post( '/', (req, res) => {
 
   var body = req.body;
 
@@ -87,6 +87,8 @@ app.post( '/', mdAut.verificarToken, (req, res) => {
         errors: err
       });
     }
+
+    usuarioGuardado.password = 'xD';
 
     res.status(201).json({
       ok: true,

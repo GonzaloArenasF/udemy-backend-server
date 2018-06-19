@@ -14,14 +14,13 @@ var puertoExpress = 3000; //Puede ser cualquier puerto disponible
 var puertoMongoDB = 27017; //Puede ser cualquier puerto disponible 
 var app           = express();
 
-// Conexión a MongoDB
-mongoose.connection.openUri('mongodb://localhost:' + puertoMongoDB + '/hospitalDB', ( err, res ) => {
-  if (err) {
-    logger.info('MongoDB con problemas: ', err);
-    throw err
-  } else {
-    logger.info('MongoDB corriendo en puerto ' + puertoMongoDB + ': online');
-  }
+// Control CORS
+// Esto es temporal. Debemos usar https://github.com/expressjs/cors :TODO
+app.use( function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow.Methos", "PSOT, GET, PUT, DELETE, OPTIONS");
+  next();
 });
 
 //
@@ -43,4 +42,14 @@ app.use('/', require('./routes/app'));
 // Escuchar peticiones
 app.listen( puertoExpress, () => {
   logger.info('Express Server corriendo en puerto ' + puertoExpress + ': online');
+});
+
+// Conexión a MongoDB
+mongoose.connection.openUri('mongodb://localhost:' + puertoMongoDB + '/hospitalDB', ( err, res ) => {
+  if (err) {
+    logger.info('MongoDB con problemas: ', err);
+    throw err
+  } else {
+    logger.info('MongoDB corriendo en puerto ' + puertoMongoDB + ': online');
+  }
 });
